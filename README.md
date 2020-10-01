@@ -15,8 +15,8 @@ It should take about 2h30 min to complete all the steps
 - Install Developer Environment (~20 min)
 - Blink (10 min)
 - General-purpose input/output (GPIO) (~15 min)
-- Analog to Digital Converter (ADC) (~15 min)
 - Pulse Width Modulation (PWM) (~15 min)
+- Analog to Digital Converter (ADC) (~15 min)
 - Interrupts (~15 min)
 - HTTP Client (~20 min)
 - HTTP Server (~20 min)
@@ -146,7 +146,7 @@ As shown in above figure of NodeMCU Dev Kit. We can see RX, TX, SD2, SD3 pins ar
 
 Note that D0/GPIO16 pin can be only used as GPIO read/write, no special functions are supported on it.
 
-**Example**
+### Exercice
 
 Create a new Arduino Sketch and save name it GPIO.ino:
 
@@ -157,6 +157,7 @@ Embedded-Programming-Lab-1
 │
 └───Blink
 |    │   Blink.ino 
+│    │
 └───GPIO
      │   GPIO.ino
 
@@ -182,3 +183,171 @@ delay(1000);                // Wait for a second
 Add plug an external LED to the D4 and Ground (GND) pins:
 
 ![wiring-blink](assets/wiring-blink.png)
+
+
+## Pulse Width Modulation (PWM)
+
+The ESP8266 GPIOs can be set either to output 0V or 3.3V, but they can’t output any voltages in between. However, you can output “fake” mid-level voltages using pulse‑width modulation (PWM), which is how you’ll produce varying levels of LED brightness for this project.
+
+If you alternate an LED’s voltage between HIGH and LOW very fast, your eyes can’t keep up with the speed at which the LED switches on and off; you’ll simply see some gradations in brightness.
+
+![led-fade](assets/led-fade.png)
+
+That’s basically how PWM works — by producing an output that changes between HIGH and LOW at a **very high frequency**.
+
+The duty cycle is the fraction of time period at which LED is set to HIGH. The following figure illustrates how PWM works.
+
+![pwm](assets/PWM-how-it-works.png)
+
+A duty cycle of 50 percent results in 50 percent LED brightness, a duty cycle of 0 means the LED is fully off, and a duty cycle of 100 means the LED is fully on. Changing the duty cycle is how you produce different levels of brightness.
+
+### Exercice
+
+Now try the following wiring:
+
+![PWM-NodeMCU-Wiring](assets/PWM-NodeMCU-Wiring.png)
+
+The resistor value is 330 ohms.
+
+Create a new Arduino Sketch and save name it PWM.ino:
+
+```
+Embedded-Programming-Lab-1
+│   README.md
+│   LICENSE   
+│
+└───Blink
+|    │   Blink.ino 
+│    │
+└───GPIO
+|    │   GPIO.ino
+|    │
+└───PWM
+     │   PWM.ino
+
+```
+
+Declare the ledPin on the pin D6:
+
+```
+const int ledPin = D6; 
+```
+
+Leave the setup() function empty:
+
+```
+void setup() {}
+```
+
+In the loop() function, add the following code:
+
+```
+void loop() {
+  // increase the LED brightness
+  for(int dutyCycle = 0; dutyCycle < 1023; dutyCycle++){   
+    // changing the LED brightness with PWM
+    analogWrite(ledPin, dutyCycle);
+    delay(1);
+  }
+}
+```
+
+Upload this code. You should see that the LED is gaining brightness slowly and then start again.
+Now add another for loop to decrease the led brightness so the brightness would go up and down continuously:
+
+```
+void loop() {
+  // increase the LED brightness
+  for(int dutyCycle = 0; dutyCycle < 1023; dutyCycle++){   
+    // changing the LED brightness with PWM
+    analogWrite(ledPin, dutyCycle);
+    delay(1);
+  }
+
+  // decrease the LED brightness
+  // -> Add your for loop here (~3 lignes of code)
+}
+```
+
+
+## Analog to Digital Converter (ADC)
+
+NodeMCUs have one ADC pin that is easily accessible. This means that those ESP8266 boards can read analog signals.
+
+### ADC Specifications:
+
+When referring to the ESP8266 ADC pin you will often hear these different terms interchangeably:
+
+- ADC (Analog-to-digital Converter)
+- TOUT
+- Pin6
+- A0
+- Analog Pin 0
+
+All these terms refer to the same pin in the ESP8266 that is highlighted below.
+
+### ESP8266 ADC Resolution
+
+The ADC pin has a 10-bit resolution, which means you’ll get values between 0 and 1023.
+
+### ESP8266 Input Voltage Range
+
+The ESP8266 ADC pin input voltage range is 0 to 1V if you’re using the bare chip. However, most ESP8266 development boards (including the NodeMCU ESP8266 12-E we are using) come with an internal voltage divider, so the **input range is 0 to 3.3V**.
+
+### ESP8266 Analog Pin
+
+With the ESP8266 12-E NodeMCU kit and other ESP8266 development boards, it is very easy to access the A0, you simply connect a jumper wire to the pin (see figure below):
+
+![nodemcu-a0](assets/nodeMCU-analog.png)
+
+### Exercice
+
+In this exercice, we will read the brightness from an brightness sensor.
+Please, do the following wiring:
+
+![brightness-wiring](assets/brightness-wiring.png)
+
+Create a new Arduino Sketch and save name it ADC.ino:
+
+```
+Embedded-Programming-Lab-1
+│   README.md
+│   LICENSE   
+│
+└───Blink
+|    │   Blink.ino 
+│    │
+└───GPIO
+|    │   GPIO.ino
+|    │
+└───PWM
+|   │   PWM.ino
+│    │
+└───ADC
+     │   ADC.ino
+
+```
+
+Declare the analogPin as A0, the sensor value and the percentage:
+
+```
+const int analogPin = A0; 
+int sensorValue = 0;
+int percentage = 0;
+```
+
+In the setup() function, initialize the Serial communication at 115200
+
+```
+void setup() {
+   Serial.begin(115200);
+}
+```
+
+In the loop() function, read every second the analog value.
+You can use `sensorValue = analogRead(analogPin);` to get the analog value.
+To map it between 0 and 100, use `percentage = map(sensorValue, 0, 1023, 0, 100);`.
+
+Now print the result to have something similar to:
+
+![serial-console-analog](assets/serial-console-analog.png)
