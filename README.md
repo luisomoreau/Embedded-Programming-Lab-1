@@ -676,11 +676,11 @@ const char* password = "REPLACE_WITH_YOUR_PASSWORD";</code></pre>
 
 
 
-<p>We&#8217;ll control the brightness of the ESP8266 built-in LED. The built-in LED corresponds to <span class="rnthl rntclblue">GPIO 2</span>. Save the GPIO we want to control on the <span class="rnthl rntliteral">output</span> variable.</p>
+<p>We&#8217;ll control the brightness of the ESP8266 built-in LED. The built-in LED corresponds to <span class="rnthl rntclblue">GPIO 12</span>. Save the GPIO we want to control on the <span class="rnthl rntliteral">output</span> variable.</p>
 
 
 
-<pre class="wp-block-code language-c"><code>const int output = 2;</code></pre>
+<pre class="wp-block-code language-c"><code>const int output = D6;</code></pre>
 
 
 
@@ -913,7 +913,7 @@ server.on("/slider", HTTP_GET, &#091;] (AsyncWebServerRequest *request) {
   if (request->hasParam(PARAM_INPUT)) {
     inputMessage = request->getParam(PARAM_INPUT)->value();
     sliderValue = inputMessage;
-    ledcWrite(ledChannel, sliderValue.toInt());
+    analogWrite(output, sliderValue.toInt());
   }
   else {
     inputMessage = "No message sent";
